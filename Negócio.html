@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Financeiro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-box {
+            background: #374151;
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            width: 100%;
+            max-width: 28rem;
+        }
+
+        .login-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #f3f4f6;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 0.5rem;
+            color: #f3f4f6;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: #9ca3af;
+        }
+
+        .error-message {
+            background: #7f1d1d;
+            color: #fecaca;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            background: #14532d;
+            color: #bbf7d0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .btn-primary:hover {
+            background: #6b7280;
+        }
+
+        .btn-secondary {
+            background: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .btn-secondary:hover {
+            background: #6b7280;
+        }
+
+        .btn-blue {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-blue:hover {
+            background: #3b82f6;
+        }
+
+        .btn-green {
+            background: #16a34a;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-green:hover {
+            background: #22c55e;
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-red:hover {
+            background: #ef4444;
+        }
+
+        .test-users {
+            margin-top: 1.5rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .test-users p {
+            margin-bottom: 0.25rem;
+        }
+
+        .header {
+            background: #374151;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f3f4f6;
+        }
+
+        .header-subtitle {
+            color: #d1d5db;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: #4b5563;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .card {
+            background: #374151;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #f3f4f6;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .info-box {
+            padding: 1rem;
+            background: #4b5563;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box h3 {
+            color: #e5e7eb;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .info-box p,
+        .info-box ul {
+            color: #d1d5db;
+            font-size: 0.875rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+        }
+
+        .info-box ul li {
+            margin-bottom: 0.25rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .data-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-type-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid #4b5563;
+            background: #4b5563;
+            color: #d1d5db;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .data-type-btn.active-ganho {
+            border-color: #3b82f6;
+            background: #1e40af;
+            color: white;
+        }
+
+        .data-type-btn.active-gasto {
+            border-color: #ef4444;
+            background: #b91c1c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">Sistema Financeiro</h1>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Login</label>
+                    <input type="text" id="username" placeholder="Digite seu login" autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password">
+                </div>
+
+                <div id="loginError" class="error-message hidden"></div>
+
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </form>
+
+            <div class="test-users">
+                <p style="margin-bottom: 0.5rem;">Usuários de teste:</p>
+                <p>Rafael / Fera (Cliente)</p>
+                <p>Pedro / Dias (Cliente)</p>
+                <p>Rodrigo / Digo (Admin)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardScreen" class="container hidden">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1 class="header-title">Dashboard Financeiro</h1>
+                <p class="header-subtitle">
+                    Bem-vindo, <span id="currentUsername"></span>
+                    <span class="badge" id="userRole"></span>
+                </p>
+            </div>
+            <button id="logoutBtn" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
+                ← Sair
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-grid">
+            <!-- Chart -->
+            <div class="card">
+                <h2 class="card-title">Valores por Dia (Ganhos e Gastos)</h2>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="card">
+                <h2 class="card-title" id="sidePanelTitle">Editar Dados</h2>
+                
+                <!-- Admin Panel -->
+                <div id="adminPanel" class="hidden">
+                    <div class="data-type-selector">
+                        <button type="button" class="data-type-btn active-ganho" id="btnGanho">💰 Ganho</button>
+                        <button type="button" class="data-type-btn" id="btnGasto">💸 Gasto</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDays">Quantidade de Dias</label>
+                        <input type="number" id="editDays" min="1" max="365" placeholder="Ex: 10">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editValue">Valor Total (R$)</label>
+                        <input type="number" id="editValue" step="0.01" min="0" placeholder="Ex: 1000.00">
+                    </div>
+
+                    <div id="editError" class="error-message hidden"></div>
+                    <div id="editSuccess" class="success-message hidden"></div>
+
+                    <button id="saveGanhoBtn" class="btn btn-green">💰 Adicionar Ganho</button>
+                    <button id="saveGastoBtn" class="btn btn-red">💸 Adicionar Gasto</button>
+
+                    <div class="info-box" style="margin-top: 1.5rem;">
+                        <h3>Instruções:</h3>
+                        <ul>
+                            <li>• Selecione o tipo (Ganho ou Gasto)</li>
+                            <li>• Digite a quantidade de dias</li>
+                            <li>• Digite o valor total</li>
+                            <li>• Clique em Adicionar para incluir no gráfico</li>
+                            <li>• Os valores serão somados no mesmo gráfico</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Client Panel -->
+                <div id="clientPanel" class="hidden">
+                    <div class="info-box">
+                        <p>Você está visualizando o gráfico em tempo real. Apenas administradores podem editar os dados.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Estatísticas:</h3>
+                        <div id="statistics"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let currentUser = null;
+        let ganhosData = [];
+        let gastosData = [];
+        let chart = null;
+        let selectedType = 'ganho';
+
+        // Usuários do sistema
+        const users = {
+            Rafael: { password: 'Fera', role: 'cliente' },
+            Pedro: { password: 'Dias', role: 'cliente' },
+            Rodrigo: { password: 'Digo', role: 'admin' }
+        };
+
+        // Elementos do DOM
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const currentUsername = document.getElementById('currentUsername');
+        const userRole = document.getElementById('userRole');
+        const adminPanel = document.getElementById('adminPanel');
+        const clientPanel = document.getElementById('clientPanel');
+        const sidePanelTitle = document.getElementById('sidePanelTitle');
+        const editError = document.getElementById('editError');
+        const editSuccess = document.getElementById('editSuccess');
+        const saveGanhoBtn = document.getElementById('saveGanhoBtn');
+        const saveGastoBtn = document.getElementById('saveGastoBtn');
+        const statistics = document.getElementById('statistics');
+        const btnGanho = document.getElementById('btnGanho');
+        const btnGasto = document.getElementById('btnGasto');
+
+        // Carregar dados do storage ao iniciar
+        async function loadData() {
+            try {
+                const ganhosResult = await window.storage.get('financial-ganhos', true);
+                if (ganhosResult && ganhosResult.value) {
+                    ganhosData = JSON.parse(ganhosResult.value);
+                }
+
+                const gastosResult = await window.storage.get('financial-gastos', true);
+                if (gastosResult && gastosResult.value) {
+                    gastosData = JSON.parse(gastosResult.value);
+                }
+            } catch (error) {
+                console.log('Nenhum dado salvo encontrado');
+            }
+        }
+
+        // Salvar dados no storage
+        async function saveDataToStorage() {
+            try {
+                await window.storage.set('financial-ganhos', JSON.stringify(ganhosData), true);
+                await window.storage.set('financial-gastos', JSON.stringify(gastosData), true);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                return false;
+            }
+        }
+
+        // Carregar dados ao iniciar a página
+        loadData();
+
+        // Selecionar tipo de dado
+        btnGanho.addEventListener('click', () => {
+            selectedType = 'ganho';
+            btnGanho.classList.add('active-ganho');
+            btnGanho.classList.remove('active-gasto');
+            btnGasto.classList.remove('active-ganho', 'active-gasto');
+        });
+
+        btnGasto.addEventListener('click', () => {
+            selectedType = 'gasto';
+            btnGasto.classList.add('active-gasto');
+            btnGasto.classList.remove('active-ganho');
+            btnGanho.classList.remove('active-ganho', 'active-gasto');
+        });
+
+        // Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const user = users[username];
+            
+            if (user && user.password === password) {
+                currentUser = { username, role: user.role };
+                showDashboard();
+            } else {
+                showError(loginError, 'Login ou senha incorretos');
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('editDays').value = '';
+            document.getElementById('editValue').value = '';
+            hideError(loginError);
+            hideError(editError);
+            hideError(editSuccess);
+            loginScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+        });
+
+        // Mostrar Dashboard
+        function showDashboard() {
+            loginScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+            hideError(loginError);
+            
+            currentUsername.textContent = currentUser.username;
+            userRole.textContent = currentUser.role === 'admin' ? 'Administrador' : 'Cliente';
+            
+            if (currentUser.role === 'admin') {
+                sidePanelTitle.textContent = 'Editar Dados';
+                adminPanel.classList.remove('hidden');
+                clientPanel.classList.add('hidden');
+            } else {
+                sidePanelTitle.textContent = 'Informações';
+                adminPanel.classList.add('hidden');
+                clientPanel.classList.remove('hidden');
+                updateStatistics();
+            }
+            
+            createChart();
+        }
+
+        // Criar gráfico
+        function createChart() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            if (ganhosData.length === 0 && gastosData.length === 0) {
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: []
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#9CA3AF'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Dias',
+                                    color: '#9CA3AF'
+                                },
+                                ticks: {
+                                    color: '#9CA3AF'
+                                },
+                                grid: {
+                                    color: '#4B5563'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Valor (R$)',
+                                    color: '#9CA3AF'
+                                },
+                                ticks: {
+                                    color: '#9CA3AF'
+                                },
+                                grid: {
+                                    color: '#4B5563'
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            const maxDays = Math.max(
+                ganhosData.length > 0 ? ganhosData.length : 0,
+                gastosData.length > 0 ? gastosData.length : 0
+            );
+            
+            const labels = Array.from({length: maxDays}, (_, i) => i + 1);
+            const datasets = [];
+            
+            if (ganhosData.length > 0) {
+                datasets.push({
+                    label: '💰 Ganhos',
+                    data: ganhosData.map(d => d.valorAcumulado),
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#3B82F6',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.1
+                });
+            }
+            
+            if (gastosData.length > 0) {
+                datasets.push({
+                    label: '💸 Gastos',
+                    data: gastosData.map(d => d.valorAcumulado),
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#EF4444',
+                    pointBorderColor: '#EF4444',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.1
+                });
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#374151',
+                            titleColor: '#F3F4F6',
+                            bodyColor: '#F3F4F6',
+                            callbacks: {
+                                label: function(context) {
+                                    const datasetLabel = context.dataset.label;
+                                    const isGanho = datasetLabel.includes('Ganhos');
+                                    const data = isGanho ? ganhosData : gastosData;
+                                    
+                                    if (context.dataIndex < data.length) {
+                                        const valorDia = data[context.dataIndex].valorPorDia;
+                                        return [
+                                            datasetLabel,
+                                            `Por dia: R$ ${valorDia.toFixed(2)}`,
+                                            `Acumulado: R$ ${context.parsed.y.toFixed(2)}`
+                                        ];
+                                    }
+                                    return datasetLabel;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Dias',
+                                color: '#9CA3AF'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            },
+                            grid: {
+                                color: '#4B5563'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor Acumulado (R$)',
+                                color: '#9CA3AF'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            },
+                            grid: {
+                                color: '#4B5563'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Salvar ganho
+        saveGanhoBtn.addEventListener('click', () => {
+            saveData('ganho');
+        });
+
+        // Salvar gasto
+        saveGastoBtn.addEventListener('click', () => {
+            saveData('gasto');
+        });
+
+        // Função para salvar dados
+        async function saveData(type) {
+            hideError(editSuccess);
+            
+            const days = parseInt(document.getElementById('editDays').value);
+            const totalValue = parseFloat(document.getElementById('editValue').value);
+            
+            if (!days || !totalValue) {
+                showError(editError, 'Preencha a quantidade de dias e o valor total');
+                return;
+            }
+            
+            if (isNaN(days) || isNaN(totalValue)) {
+                showError(editError, 'Digite valores numéricos válidos');
+                return;
+            }
+            
+            if (days < 1 || days > 365) {
+                showError(editError, 'A quantidade de dias deve estar entre 1 e 365');
+                return;
+            }
+            
+            if (totalValue < 0) {
+                showError(editError, 'O valor não pode ser negativo');
+                return;
+            }
+
+            const valuePerDay = totalValue / days;
+            const newData = [];
+            
+            for (let i = 1; i <= days; i++) {
+                newData.push({
+                    dia: i,
+                    valorPorDia: valuePerDay,
+                    valorAcumulado: valuePerDay * i,
+                    tipo: type
+                });
+            }
+            
+            if (type === 'ganho') {
+                ganhosData = newData;
+            } else {
+                gastosData = newData;
+            }
+            
+            // Salvar no storage
+            await saveDataToStorage();
+            
+            createChart();
+            
+            if (currentUser.role === 'cliente') {
+                updateStatistics();
+            }
+            
+            const tipoText = type === 'ganho' ? '💰 Ganho' : '💸 Gasto';
+            showError(editSuccess, `${tipoText} adicionado: ${days} dias, R$ ${valuePerDay.toFixed(2)}/dia`);
+            hideError(editError);
+            
+            document.getElementById('editDays').value = '';
+            document.getElementById('editValue').value = '';
+        }
+
+        // Atualizar estatísticas
+        function updateStatistics() {
+            if (ganhosData.length === 0 && gastosData.length === 0) {
+                statistics.innerHTML = '<p style="color: #9CA3AF;">Nenhum dado disponível ainda.</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            if (ganhosData.length > 0) {
+                const totalDiasGanho = ganhosData.length;
+                const valorPorDiaGanho = ganhosData[0].valorPorDia;
+                const valorTotalGanho = ganhosData[ganhosData.length - 1].valorAcumulado;
+                
+                html += `
+                    <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
+                        <p style="margin-bottom: 0.5rem; color: #60A5FA; font-weight: bold;">💰 GANHOS</p>
+                        <p style="margin-bottom: 0.5rem;">Dias: ${totalDiasGanho}</p>
+                        <p style="margin-bottom: 0.5rem;">Por dia: R$ ${valorPorDiaGanho.toFixed(2)}</p>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #60A5FA;">Total: R$ ${valorTotalGanho.toFixed(2)}</p>
+                    </div>
+                `;
+            }
+            
+            if (gastosData.length > 0) {
+                const totalDiasGasto = gastosData.length;
+                const valorPorDiaGasto = gastosData[0].valorPorDia;
+                const valorTotalGasto = gastosData[gastosData.length - 1].valorAcumulado;
+                
+                html += `
+                    <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
+                        <p style="margin-bottom: 0.5rem; color: #F87171; font-weight: bold;">💸 GASTOS</p>
+                        <p style="margin-bottom: 0.5rem;">Dias: ${totalDiasGasto}</p>
+                        <p style="margin-bottom: 0.5rem;">Por dia: R$ ${valorPorDiaGasto.toFixed(2)}</p>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #F87171;">Total: R$ ${valorTotalGasto.toFixed(2)}</p>
+                    </div>
+                `;
+            }
+            
+            if (ganhosData.length > 0 && gastosData.length > 0) {
+                const saldoGanho = ganhosData[ganhosData.length - 1].valorAcumulado;
+                const saldoGasto = gastosData[gastosData.length - 1].valorAcumulado;
+                const saldoFinal = saldoGanho - saldoGasto;
+                const saldoColor = saldoFinal >= 0 ? '#22C55E' : '#F87171';
+                
+                html += `
+                    <div>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #9CA3AF;">SALDO FINAL</p>
+                        <p style="font-weight: bold; font-size: 1.25rem; color: ${saldoColor};">R$ ${saldoFinal.toFixed(2)}</p>
+                    </div>
+                `;
+            }
+            
+            statistics.innerHTML = html;
+        }
+
+        // Funções auxiliares
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+
+        function hideError(element) {
+            element.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
