@@ -127,15 +127,6 @@
             background: #6b7280;
         }
 
-        .btn-blue {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-blue:hover {
-            background: #3b82f6;
-        }
-
         .btn-green {
             background: #16a34a;
             color: white;
@@ -245,8 +236,7 @@
             font-size: 0.875rem;
         }
 
-        .info-box p,
-        .info-box ul {
+        .info-box p, .info-box ul {
             color: #d1d5db;
             font-size: 0.875rem;
         }
@@ -298,30 +288,69 @@
             background: #b91c1c;
             color: white;
         }
+
+        .data-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #4b5563;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-item-info {
+            flex: 1;
+        }
+
+        .data-item-type {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .data-item-details {
+            font-size: 0.875rem;
+            color: #d1d5db;
+        }
+
+        .btn-delete {
+            background: #7f1d1d;
+            color: #fecaca;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #991b1b;
+        }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h1 class="login-title">Sistema Financeiro</h1>
-            
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">Login</label>
                     <input type="text" id="username" placeholder="Digite seu login" autocomplete="username">
                 </div>
-                
                 <div class="form-group">
                     <label for="password">Senha</label>
                     <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password">
                 </div>
-
                 <div id="loginError" class="error-message hidden"></div>
-
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
-
             <div class="test-users">
                 <p style="margin-bottom: 0.5rem;">Usuários de teste:</p>
                 <p>Rafael / Fera (Cliente)</p>
@@ -331,9 +360,7 @@
         </div>
     </div>
 
-    <!-- Dashboard -->
     <div id="dashboardScreen" class="container hidden">
-        <!-- Header -->
         <div class="header">
             <div>
                 <h1 class="header-title">Dashboard Financeiro</h1>
@@ -347,9 +374,7 @@
             </button>
         </div>
 
-        <!-- Main Content -->
         <div class="dashboard-grid">
-            <!-- Chart -->
             <div class="card">
                 <h2 class="card-title">Valores por Dia (Ganhos e Gastos)</h2>
                 <div class="chart-container">
@@ -357,11 +382,9 @@
                 </div>
             </div>
 
-            <!-- Side Panel -->
             <div class="card">
                 <h2 class="card-title" id="sidePanelTitle">Editar Dados</h2>
                 
-                <!-- Admin Panel -->
                 <div id="adminPanel" class="hidden">
                     <div class="data-type-selector">
                         <button type="button" class="data-type-btn active-ganho" id="btnGanho">💰 Ganho</button>
@@ -369,13 +392,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="editDays">Quantidade de Dias</label>
-                        <input type="number" id="editDays" min="1" max="365" placeholder="Ex: 10">
+                        <label for="editDay">Dia</label>
+                        <input type="number" id="editDay" min="1" max="365" placeholder="Ex: 10">
                     </div>
 
                     <div class="form-group">
-                        <label for="editValue">Valor Total (R$)</label>
-                        <input type="number" id="editValue" step="0.01" min="0" placeholder="Ex: 1000.00">
+                        <label for="editValue">Valor (R$)</label>
+                        <input type="number" id="editValue" step="0.01" min="0" placeholder="Ex: 12.00">
                     </div>
 
                     <div id="editError" class="error-message hidden"></div>
@@ -388,20 +411,21 @@
                         <h3>Instruções:</h3>
                         <ul>
                             <li>• Selecione o tipo (Ganho ou Gasto)</li>
-                            <li>• Digite a quantidade de dias</li>
-                            <li>• Digite o valor total</li>
-                            <li>• Clique em Adicionar para incluir no gráfico</li>
-                            <li>• Os valores serão somados no mesmo gráfico</li>
+                            <li>• Digite o dia (Ex: 10)</li>
+                            <li>• Digite o valor para aquele dia</li>
+                            <li>• Clique em Adicionar</li>
+                            <li>• ✨ Valores no mesmo dia são SOMADOS!</li>
+                            <li>• Os dados ficam salvos permanentemente</li>
                         </ul>
                     </div>
+
+                    <div id="dataList" class="data-list"></div>
                 </div>
 
-                <!-- Client Panel -->
                 <div id="clientPanel" class="hidden">
                     <div class="info-box">
                         <p>Você está visualizando o gráfico em tempo real. Apenas administradores podem editar os dados.</p>
                     </div>
-                    
                     <div class="info-box">
                         <h3>Estatísticas:</h3>
                         <div id="statistics"></div>
@@ -412,21 +436,18 @@
     </div>
 
     <script>
-        // Estado da aplicação
         let currentUser = null;
-        let ganhosData = [];
-        let gastosData = [];
+        let ganhosData = {};
+        let gastosData = {};
         let chart = null;
         let selectedType = 'ganho';
 
-        // Usuários do sistema
         const users = {
             Rafael: { password: 'Fera', role: 'cliente' },
             Pedro: { password: 'Dias', role: 'cliente' },
             Rodrigo: { password: 'Digo', role: 'admin' }
         };
 
-        // Elementos do DOM
         const loginScreen = document.getElementById('loginScreen');
         const dashboardScreen = document.getElementById('dashboardScreen');
         const loginForm = document.getElementById('loginForm');
@@ -444,29 +465,31 @@
         const statistics = document.getElementById('statistics');
         const btnGanho = document.getElementById('btnGanho');
         const btnGasto = document.getElementById('btnGasto');
+        const dataList = document.getElementById('dataList');
 
-        // Carregar dados do storage ao iniciar
-        async function loadData() {
-            try {
-                const ganhosResult = await window.storage.get('financial-ganhos', true);
-                if (ganhosResult && ganhosResult.value) {
-                    ganhosData = JSON.parse(ganhosResult.value);
-                }
+        function loadData() {
+            const ganhosJSON = localStorage.getItem('financial-ganhos');
+            if (ganhosJSON) {
+                ganhosData = JSON.parse(ganhosJSON);
+                console.log('Ganhos carregados:', ganhosData);
+            } else {
+                ganhosData = {};
+            }
 
-                const gastosResult = await window.storage.get('financial-gastos', true);
-                if (gastosResult && gastosResult.value) {
-                    gastosData = JSON.parse(gastosResult.value);
-                }
-            } catch (error) {
-                console.log('Nenhum dado salvo encontrado');
+            const gastosJSON = localStorage.getItem('financial-gastos');
+            if (gastosJSON) {
+                gastosData = JSON.parse(gastosJSON);
+                console.log('Gastos carregados:', gastosData);
+            } else {
+                gastosData = {};
             }
         }
 
-        // Salvar dados no storage
-        async function saveDataToStorage() {
+        function saveDataToStorage() {
             try {
-                await window.storage.set('financial-ganhos', JSON.stringify(ganhosData), true);
-                await window.storage.set('financial-gastos', JSON.stringify(gastosData), true);
+                localStorage.setItem('financial-ganhos', JSON.stringify(ganhosData));
+                localStorage.setItem('financial-gastos', JSON.stringify(gastosData));
+                console.log('Dados salvos com sucesso!');
                 return true;
             } catch (error) {
                 console.error('Erro ao salvar dados:', error);
@@ -474,15 +497,12 @@
             }
         }
 
-        // Carregar dados ao iniciar a página
-        loadData();
-
-        // Selecionar tipo de dado
         btnGanho.addEventListener('click', () => {
             selectedType = 'ganho';
             btnGanho.classList.add('active-ganho');
             btnGanho.classList.remove('active-gasto');
             btnGasto.classList.remove('active-ganho', 'active-gasto');
+            updateDataList();
         });
 
         btnGasto.addEventListener('click', () => {
@@ -490,30 +510,29 @@
             btnGasto.classList.add('active-gasto');
             btnGasto.classList.remove('active-ganho');
             btnGanho.classList.remove('active-ganho', 'active-gasto');
+            updateDataList();
         });
 
-        // Login
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
+
             const user = users[username];
-            
             if (user && user.password === password) {
                 currentUser = { username, role: user.role };
+                loadData();
                 showDashboard();
             } else {
                 showError(loginError, 'Login ou senha incorretos');
             }
         });
 
-        // Logout
         logoutBtn.addEventListener('click', () => {
             currentUser = null;
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('editDays').value = '';
+            document.getElementById('editDay').value = '';
             document.getElementById('editValue').value = '';
             hideError(loginError);
             hideError(editError);
@@ -522,38 +541,88 @@
             dashboardScreen.classList.add('hidden');
         });
 
-        // Mostrar Dashboard
         function showDashboard() {
             loginScreen.classList.add('hidden');
             dashboardScreen.classList.remove('hidden');
             hideError(loginError);
-            
+
             currentUsername.textContent = currentUser.username;
             userRole.textContent = currentUser.role === 'admin' ? 'Administrador' : 'Cliente';
-            
+
             if (currentUser.role === 'admin') {
                 sidePanelTitle.textContent = 'Editar Dados';
                 adminPanel.classList.remove('hidden');
                 clientPanel.classList.add('hidden');
+                updateDataList();
             } else {
                 sidePanelTitle.textContent = 'Informações';
                 adminPanel.classList.add('hidden');
                 clientPanel.classList.remove('hidden');
                 updateStatistics();
             }
-            
+
             createChart();
         }
 
-        // Criar gráfico
+        function updateDataList() {
+            const data = selectedType === 'ganho' ? ganhosData : gastosData;
+            const color = selectedType === 'ganho' ? '#60A5FA' : '#F87171';
+            const emoji = selectedType === 'ganho' ? '💰' : '💸';
+            const label = selectedType === 'ganho' ? 'Ganho' : 'Gasto';
+
+            if (Object.keys(data).length === 0) {
+                dataList.innerHTML = `<p style="color: #9CA3AF; text-align: center; padding: 1rem;">Nenhum ${label.toLowerCase()} cadastrado</p>`;
+                return;
+            }
+
+            const sortedDays = Object.keys(data).map(Number).sort((a, b) => a - b);
+            let html = `<h3 style="color: ${color}; margin-bottom: 0.75rem;">${emoji} ${label}s Cadastrados:</h3>`;
+
+            sortedDays.forEach(day => {
+                html += `
+                    <div class="data-item">
+                        <div class="data-item-info">
+                            <div class="data-item-type" style="color: ${color};">Dia ${day}</div>
+                            <div class="data-item-details">R$ ${data[day].toFixed(2)}</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteData('${selectedType}', ${day})">🗑️ Excluir</button>
+                    </div>
+                `;
+            });
+
+            dataList.innerHTML = html;
+        }
+
+        window.deleteData = function(type, day) {
+            if (type === 'ganho') {
+                delete ganhosData[day];
+            } else {
+                delete gastosData[day];
+            }
+
+            saveDataToStorage();
+            createChart();
+            updateDataList();
+
+            if (currentUser && currentUser.role === 'cliente') {
+                updateStatistics();
+            }
+
+            showError(editSuccess, `Dado do dia ${day} removido com sucesso!`);
+            setTimeout(() => hideError(editSuccess), 3000);
+        };
+
         function createChart() {
             const ctx = document.getElementById('lineChart').getContext('2d');
-            
+
             if (chart) {
                 chart.destroy();
             }
-            
-            if (ganhosData.length === 0 && gastosData.length === 0) {
+
+            const hasGanhos = Object.keys(ganhosData).length > 0;
+            const hasGastos = Object.keys(gastosData).length > 0;
+
+            if (!hasGanhos && !hasGastos) {
                 chart = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -565,56 +634,39 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: {
-                                    color: '#9CA3AF'
-                                }
+                                labels: { color: '#9CA3AF' }
                             }
                         },
                         scales: {
                             x: {
-                                title: {
-                                    display: true,
-                                    text: 'Dias',
-                                    color: '#9CA3AF'
-                                },
-                                ticks: {
-                                    color: '#9CA3AF'
-                                },
-                                grid: {
-                                    color: '#4B5563'
-                                }
+                                title: { display: true, text: 'Dias', color: '#9CA3AF' },
+                                ticks: { color: '#9CA3AF' },
+                                grid: { color: '#4B5563' }
                             },
                             y: {
-                                title: {
-                                    display: true,
-                                    text: 'Valor (R$)',
-                                    color: '#9CA3AF'
-                                },
-                                ticks: {
-                                    color: '#9CA3AF'
-                                },
-                                grid: {
-                                    color: '#4B5563'
-                                }
+                                title: { display: true, text: 'Valor (R$)', color: '#9CA3AF' },
+                                ticks: { color: '#9CA3AF' },
+                                grid: { color: '#4B5563' }
                             }
                         }
                     }
                 });
                 return;
             }
-            
-            const maxDays = Math.max(
-                ganhosData.length > 0 ? ganhosData.length : 0,
-                gastosData.length > 0 ? gastosData.length : 0
-            );
-            
-            const labels = Array.from({length: maxDays}, (_, i) => i + 1);
+
+            const allDays = new Set([
+                ...Object.keys(ganhosData).map(Number),
+                ...Object.keys(gastosData).map(Number)
+            ]);
+            const maxDay = Math.max(...allDays);
+            const labels = Array.from({length: maxDay}, (_, i) => i + 1);
+
             const datasets = [];
-            
-            if (ganhosData.length > 0) {
+
+            if (hasGanhos) {
                 datasets.push({
                     label: '💰 Ganhos',
-                    data: ganhosData.map(d => d.valorAcumulado),
+                    data: labels.map(day => ganhosData[day] || 0),
                     borderColor: '#3B82F6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 3,
@@ -625,11 +677,11 @@
                     tension: 0.1
                 });
             }
-            
-            if (gastosData.length > 0) {
+
+            if (hasGastos) {
                 datasets.push({
                     label: '💸 Gastos',
-                    data: gastosData.map(d => d.valorAcumulado),
+                    data: labels.map(day => gastosData[day] || 0),
                     borderColor: '#EF4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
                     borderWidth: 3,
@@ -640,13 +692,10 @@
                     tension: 0.1
                 });
             }
-            
+
             chart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
+                data: { labels, datasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -654,10 +703,7 @@
                         legend: {
                             labels: {
                                 color: '#9CA3AF',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
+                                font: { size: 14, weight: 'bold' }
                             }
                         },
                         tooltip: {
@@ -665,185 +711,137 @@
                             titleColor: '#F3F4F6',
                             bodyColor: '#F3F4F6',
                             callbacks: {
-                                label: function(context) {
-                                    const datasetLabel = context.dataset.label;
-                                    const isGanho = datasetLabel.includes('Ganhos');
-                                    const data = isGanho ? ganhosData : gastosData;
-                                    
-                                    if (context.dataIndex < data.length) {
-                                        const valorDia = data[context.dataIndex].valorPorDia;
-                                        return [
-                                            datasetLabel,
-                                            `Por dia: R$ ${valorDia.toFixed(2)}`,
-                                            `Acumulado: R$ ${context.parsed.y.toFixed(2)}`
-                                        ];
-                                    }
-                                    return datasetLabel;
-                                }
+                                label: (context) => `${context.dataset.label}: R$ ${context.parsed.y.toFixed(2)}`
                             }
                         }
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Dias',
-                                color: '#9CA3AF'
-                            },
-                            ticks: {
-                                color: '#9CA3AF'
-                            },
-                            grid: {
-                                color: '#4B5563'
-                            }
+                            title: { display: true, text: 'Dias', color: '#9CA3AF' },
+                            ticks: { color: '#9CA3AF' },
+                            grid: { color: '#4B5563' }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Valor Acumulado (R$)',
-                                color: '#9CA3AF'
-                            },
-                            ticks: {
-                                color: '#9CA3AF'
-                            },
-                            grid: {
-                                color: '#4B5563'
-                            }
+                            title: { display: true, text: 'Valor (R$)', color: '#9CA3AF' },
+                            ticks: { color: '#9CA3AF' },
+                            grid: { color: '#4B5563' }
                         }
                     }
                 }
             });
         }
 
-        // Salvar ganho
-        saveGanhoBtn.addEventListener('click', () => {
-            saveData('ganho');
-        });
+        saveGanhoBtn.addEventListener('click', () => saveData('ganho'));
+        saveGastoBtn.addEventListener('click', () => saveData('gasto'));
 
-        // Salvar gasto
-        saveGastoBtn.addEventListener('click', () => {
-            saveData('gasto');
-        });
-
-        // Função para salvar dados
-        async function saveData(type) {
+        function saveData(type) {
             hideError(editSuccess);
-            
-            const days = parseInt(document.getElementById('editDays').value);
-            const totalValue = parseFloat(document.getElementById('editValue').value);
-            
-            if (!days || !totalValue) {
-                showError(editError, 'Preencha a quantidade de dias e o valor total');
+
+            const day = parseInt(document.getElementById('editDay').value);
+            const value = parseFloat(document.getElementById('editValue').value);
+
+            if (!day || !value) {
+                showError(editError, 'Preencha o dia e o valor');
                 return;
             }
-            
-            if (isNaN(days) || isNaN(totalValue)) {
+
+            if (isNaN(day) || isNaN(value)) {
                 showError(editError, 'Digite valores numéricos válidos');
                 return;
             }
-            
-            if (days < 1 || days > 365) {
-                showError(editError, 'A quantidade de dias deve estar entre 1 e 365');
+
+            if (day < 1 || day > 365) {
+                showError(editError, 'O dia deve estar entre 1 e 365');
                 return;
             }
-            
-            if (totalValue < 0) {
+
+            if (value < 0) {
                 showError(editError, 'O valor não pode ser negativo');
                 return;
             }
 
-            const valuePerDay = totalValue / days;
-            const newData = [];
-            
-            for (let i = 1; i <= days; i++) {
-                newData.push({
-                    dia: i,
-                    valorPorDia: valuePerDay,
-                    valorAcumulado: valuePerDay * i,
-                    tipo: type
-                });
-            }
-            
             if (type === 'ganho') {
-                ganhosData = newData;
+                ganhosData[day] = (ganhosData[day] || 0) + value;
             } else {
-                gastosData = newData;
+                gastosData[day] = (gastosData[day] || 0) + value;
             }
-            
-            // Salvar no storage
-            await saveDataToStorage();
-            
+
+            const saved = saveDataToStorage();
+            if (!saved) {
+                showError(editError, 'Erro ao salvar dados. Tente novamente.');
+                return;
+            }
+
             createChart();
-            
-            if (currentUser.role === 'cliente') {
+            updateDataList();
+
+            if (currentUser && currentUser.role === 'cliente') {
                 updateStatistics();
             }
-            
+
             const tipoText = type === 'ganho' ? '💰 Ganho' : '💸 Gasto';
-            showError(editSuccess, `${tipoText} adicionado: ${days} dias, R$ ${valuePerDay.toFixed(2)}/dia`);
+            const valorAtual = type === 'ganho' ? ganhosData[day] : gastosData[day];
+            showError(editSuccess, `${tipoText} adicionado: Dia ${day}, +R$ ${value.toFixed(2)} (Total: R$ ${valorAtual.toFixed(2)})`);
             hideError(editError);
-            
-            document.getElementById('editDays').value = '';
+
+            document.getElementById('editDay').value = '';
             document.getElementById('editValue').value = '';
+
+            setTimeout(() => hideError(editSuccess), 3000);
         }
 
-        // Atualizar estatísticas
         function updateStatistics() {
-            if (ganhosData.length === 0 && gastosData.length === 0) {
+            const hasGanhos = Object.keys(ganhosData).length > 0;
+            const hasGastos = Object.keys(gastosData).length > 0;
+
+            if (!hasGanhos && !hasGastos) {
                 statistics.innerHTML = '<p style="color: #9CA3AF;">Nenhum dado disponível ainda.</p>';
                 return;
             }
-            
+
             let html = '';
-            
-            if (ganhosData.length > 0) {
-                const totalDiasGanho = ganhosData.length;
-                const valorPorDiaGanho = ganhosData[0].valorPorDia;
-                const valorTotalGanho = ganhosData[ganhosData.length - 1].valorAcumulado;
-                
+
+            if (hasGanhos) {
+                const totalGanhos = Object.values(ganhosData).reduce((sum, val) => sum + val, 0);
+                const diasGanho = Object.keys(ganhosData).length;
                 html += `
                     <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
                         <p style="margin-bottom: 0.5rem; color: #60A5FA; font-weight: bold;">💰 GANHOS</p>
-                        <p style="margin-bottom: 0.5rem;">Dias: ${totalDiasGanho}</p>
-                        <p style="margin-bottom: 0.5rem;">Por dia: R$ ${valorPorDiaGanho.toFixed(2)}</p>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #60A5FA;">Total: R$ ${valorTotalGanho.toFixed(2)}</p>
+                        <p style="margin-bottom: 0.5rem;">Dias com ganhos: ${diasGanho}</p>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #60A5FA;">Total: R$ ${totalGanhos.toFixed(2)}</p>
                     </div>
                 `;
             }
-            
-            if (gastosData.length > 0) {
-                const totalDiasGasto = gastosData.length;
-                const valorPorDiaGasto = gastosData[0].valorPorDia;
-                const valorTotalGasto = gastosData[gastosData.length - 1].valorAcumulado;
-                
+
+            if (hasGastos) {
+                const totalGastos = Object.values(gastosData).reduce((sum, val) => sum + val, 0);
+                const diasGasto = Object.keys(gastosData).length;
                 html += `
                     <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
                         <p style="margin-bottom: 0.5rem; color: #F87171; font-weight: bold;">💸 GASTOS</p>
-                        <p style="margin-bottom: 0.5rem;">Dias: ${totalDiasGasto}</p>
-                        <p style="margin-bottom: 0.5rem;">Por dia: R$ ${valorPorDiaGasto.toFixed(2)}</p>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #F87171;">Total: R$ ${valorTotalGasto.toFixed(2)}</p>
+                        <p style="margin-bottom: 0.5rem;">Dias com gastos: ${diasGasto}</p>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #F87171;">Total: R$ ${totalGastos.toFixed(2)}</p>
                     </div>
                 `;
             }
-            
-            if (ganhosData.length > 0 && gastosData.length > 0) {
-                const saldoGanho = ganhosData[ganhosData.length - 1].valorAcumulado;
-                const saldoGasto = gastosData[gastosData.length - 1].valorAcumulado;
-                const saldoFinal = saldoGanho - saldoGasto;
-                const saldoColor = saldoFinal >= 0 ? '#22C55E' : '#F87171';
-                
+
+            if (hasGanhos && hasGastos) {
+                const totalGanhos = Object.values(ganhosData).reduce((sum, val) => sum + val, 0);
+                const totalGastos = Object.values(gastosData).reduce((sum, val) => sum + val, 0);
+                const saldoFinal = totalGanhos - totalGastos;
+                const saldoColor = saldoFinal >= 0 ? '#10B981' : '#F87171';
                 html += `
                     <div>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #9CA3AF;">SALDO FINAL</p>
-                        <p style="font-weight: bold; font-size: 1.25rem; color: ${saldoColor};">R$ ${saldoFinal.toFixed(2)}</p>
+                        <p style="margin-bottom: 0.5rem; color: #E5E7EB; font-weight: bold;">📊 SALDO</p>
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; font-size: 1.25rem; color: ${saldoColor};">
+                            R$ ${saldoFinal.toFixed(2)}                        </p>
                     </div>
                 `;
             }
-            
+
             statistics.innerHTML = html;
         }
 
-        // Funções auxiliares
         function showError(element, message) {
             element.textContent = message;
             element.classList.remove('hidden');
