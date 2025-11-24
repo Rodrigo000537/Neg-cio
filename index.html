@@ -1,453 +1,215 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Financeiro</title>
+    <title>FinanceFlow - Global Sync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        }
-
-        .container {
-            min-height: 100vh;
-            padding: 1.5rem;
-        }
-
-        .login-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
-
-        .login-box {
-            background: #374151;
-            border-radius: 0.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            padding: 2rem;
-            width: 100%;
-            max-width: 28rem;
-        }
-
-        .login-title {
-            font-size: 1.875rem;
-            font-weight: bold;
-            color: #f3f4f6;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            color: #d1d5db;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: #4b5563;
-            border: 1px solid #6b7280;
-            border-radius: 0.5rem;
-            color: #f3f4f6;
-            font-size: 1rem;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            ring: 2px;
-            ring-color: #9ca3af;
-        }
-
-        .error-message {
-            background: #7f1d1d;
-            color: #fecaca;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-
-        .success-message {
-            background: #14532d;
-            color: #bbf7d0;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: #4b5563;
-            color: #f3f4f6;
-        }
-
-        .btn-primary:hover {
-            background: #6b7280;
-        }
-
-        .btn-secondary {
-            background: #4b5563;
-            color: #f3f4f6;
-        }
-
-        .btn-secondary:hover {
-            background: #6b7280;
-        }
-
-        .btn-green {
-            background: #16a34a;
-            color: white;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-green:hover {
-            background: #22c55e;
-        }
-
-        .btn-red {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-red:hover {
-            background: #ef4444;
-        }
-
-        .test-users {
-            margin-top: 1.5rem;
-            color: #9ca3af;
-            font-size: 0.875rem;
-            text-align: center;
-        }
-
-        .test-users p {
-            margin-bottom: 0.25rem;
-        }
-
-        .header {
-            background: #374151;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #f3f4f6;
-        }
-
-        .header-subtitle {
-            color: #d1d5db;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .badge {
-            display: inline-block;
-            margin-left: 0.5rem;
-            padding: 0.25rem 0.5rem;
-            background: #4b5563;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-
-        .card {
-            background: #374151;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            padding: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #f3f4f6;
-            margin-bottom: 1rem;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-        }
-
-        .info-box {
-            padding: 1rem;
-            background: #4b5563;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-box h3 {
-            color: #e5e7eb;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .info-box p, .info-box ul {
-            color: #d1d5db;
-            font-size: 0.875rem;
-        }
-
-        .info-box ul {
-            list-style: none;
-        }
-
-        .info-box ul li {
-            margin-bottom: 0.25rem;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            opacity: 1;
-        }
-
-        .data-type-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .data-type-btn {
-            flex: 1;
-            padding: 0.5rem;
-            border: 2px solid #4b5563;
-            background: #4b5563;
-            color: #d1d5db;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .data-type-btn.active-ganho {
-            border-color: #3b82f6;
-            background: #1e40af;
-            color: white;
-        }
-
-        .data-type-btn.active-gasto {
-            border-color: #ef4444;
-            background: #b91c1c;
-            color: white;
-        }
-
-        .data-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 1rem;
-        }
-
-        .data-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            background: #4b5563;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .data-item-info {
-            flex: 1;
-        }
-
-        .data-item-type {
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-
-        .data-item-details {
-            font-size: 0.875rem;
-            color: #d1d5db;
-        }
-
-        .btn-delete {
-            background: #7f1d1d;
-            color: #fecaca;
-            border: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-
-        .btn-delete:hover {
-            background: #991b1b;
-        }
+        .data-type-btn { transition: all 0.2s; }
+        .data-type-btn.active-income { border-color: #3b82f6; background: #1e40af; }
+        .data-type-btn.active-expense { border-color: #ef4444; background: #b91c1c; }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
-<body>
-    <div id="loginScreen" class="login-container">
-        <div class="login-box">
-            <h1 class="login-title">Sistema Financeiro</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Login</label>
-                    <input type="text" id="username" placeholder="Digite seu login" autocomplete="username">
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-900 z-50">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <svg class="w-16 h-16 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password">
+                <h1 class="text-3xl font-bold text-white mb-2">FinanceFlow</h1>
+                <p class="text-gray-400">Real-time Global Sync System</p>
+                <div class="flex items-center justify-center mt-2 text-xs text-green-400">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 pulse-dot"></span>
+                    Cloud Connected
                 </div>
-                <div id="loginError" class="error-message hidden"></div>
-                <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-400">
+                </div>
+                <div id="loginError" class="hidden bg-red-900/50 text-red-200 px-4 py-3 rounded-lg text-sm"></div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200">Sign In</button>
             </form>
-            <div class="test-users">
-                <p style="margin-bottom: 0.5rem;">Usuários de teste:</p>
-                <p>Rafael / Fera (Cliente)</p>
-                <p>Pedro / Dias (Cliente)</p>
-                <p>Rodrigo / Digo (Admin)</p>
+            <div class="mt-8 text-center text-sm text-gray-400">
+                <p class="mb-2">Test accounts:</p>
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="bg-gray-700/50 rounded-lg p-2 text-xs">Rafael / Fera (Client)</div>
+                    <div class="bg-gray-700/50 rounded-lg p-2 text-xs">Pedro / Dias (Client)</div>
+                    <div class="bg-gray-700/50 rounded-lg p-2 text-xs">Rodrigo / Digo (Admin)</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="dashboardScreen" class="container hidden">
-        <div class="header">
-            <div>
-                <h1 class="header-title">Dashboard Financeiro</h1>
-                <p class="header-subtitle">
-                    Bem-vindo, <span id="currentUsername"></span>
-                    <span class="badge" id="userRole"></span>
-                </p>
-            </div>
-            <button id="logoutBtn" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
-                ← Sair
-            </button>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="card">
-                <h2 class="card-title">Valores por Dia (Ganhos e Gastos)</h2>
-                <div class="chart-container">
-                    <canvas id="lineChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title" id="siudePanelTitle">Editar Dados</h2>
-                
-                <div id="adminPanel" class="hidden">
-                    <div class="data-type-selector">
-                        <button type="button" class="data-type-btn active-ganho" id="btnGanho">💰 Ganho</button>
-                        <button type="button" class="data-type-btn" id="btnGasto">💸 Gasto</button>
+    <!-- Dashboard -->
+    <div id="dashboardScreen" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-gray-800 shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h1 class="text-xl font-bold text-white">FinanceFlow</h1>
+                            <div class="flex items-center text-xs text-green-400">
+                                <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1 pulse-dot"></span>
+                                <span>Live Sync</span>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="editDay">Dia</label>
-                        <input type="number" id="editDay" min="1" max="365" placeholder="Ex: 10">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editValue">Valor (R$)</label>
-                        <input type="number" id="editValue" step="0.01" min="0" placeholder="Ex: 12.00">
-                    </div>
-
-                    <div id="editError" class="error-message hidden"></div>
-                    <div id="editSuccess" class="success-message hidden"></div>
-
-                    <button id="saveGanhoBtn" class="btn btn-green">💰 Adicionar Ganho</button>
-                    <button id="saveGastoBtn" class="btn btn-red">💸 Adicionar Gasto</button>
-
-                    <div class="info-box" style="margin-top: 1.5rem;">
-                        <h3>Instruções:</h3>
-                        <ul>
-                            <li>• Selecione o tipo (Ganho ou Gasto)</li>
-                            <li>• Digite o dia (Ex: 10)</li>
-                            <li>• Digite o valor para aquele dia</li>
-                            <li>• Clique em Adicionar</li>
-                            <li>• ✨ Valores no mesmo dia são SOMADOS!</li>
-                            <li>• Os dados ficam salvos permanentemente</li>
-                        </ul>
-                    </div>
-
-                    <div id="dataList" class="data-list"></div>
-                </div>
-
-                <div id="clientPanel" class="hidden">
-                    <div class="info-box">
-                        <p>Você está visualizando o gráfico em tempo real. Apenas administradores podem editar os dados.</p>
-                    </div>
-                    <div class="info-box">
-                        <h3>Estatísticas:</h3>
-                        <div id="statistics"></div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm">
+                            <div class="text-gray-300">Welcome, <span id="currentUsername" class="font-medium text-white"></span></div>
+                            <div id="userRole" class="text-xs text-indigo-400"></div>
+                        </div>
+                        <button id="logoutBtn" class="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-200 bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg">
+                            <span>Sign Out</span>
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Chart Section -->
+                <div class="lg:col-span-2 order-2 lg:order-1">
+                    <div class="bg-gray-800 rounded-xl shadow-lg p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-semibold text-white">Financial Overview</h2>
+                            <div class="flex items-center space-x-3">
+                                <div id="syncStatus" class="flex items-center text-xs text-green-400">
+                                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 pulse-dot"></span>
+                                    Synced
+                                </div>
+                                <span id="lastUpdate" class="text-xs text-gray-400"></span>
+                            </div>
+                        </div>
+                        <div class="relative h-96">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="lg:col-span-1 order-1 lg:order-2 space-y-6">
+                    <!-- Stats Card -->
+                    <div class="bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Quick Stats</h2>
+                        <div id="statistics" class="space-y-4"></div>
+                    </div>
+
+                    <!-- Admin Panel -->
+                    <div id="adminPanel" class="hidden bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Add Transaction</h2>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button id="btnIncome" class="data-type-btn active-income text-white py-3 rounded-lg font-medium border-2">💰 Income</button>
+                            <button id="btnExpense" class="data-type-btn text-white py-3 rounded-lg font-medium border-2 border-gray-600 bg-gray-700">💸 Expense</button>
+                        </div>
+
+                        <div class="space-y-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Day (1-365)</label>
+                                <input type="number" id="editDay" min="1" max="365" placeholder="e.g., 10" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Amount ($)</label>
+                                <input type="number" id="editValue" step="0.01" min="0" placeholder="e.g., 100.00" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400">
+                            </div>
+                        </div>
+
+                        <div id="editError" class="hidden bg-red-900/50 text-red-200 px-4 py-2 rounded-lg text-sm mb-4"></div>
+                        <div id="editSuccess" class="hidden bg-green-900/50 text-green-200 px-4 py-2 rounded-lg text-sm mb-4"></div>
+
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button id="saveIncomeBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition">Add Income</button>
+                            <button id="saveExpenseBtn" class="bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition">Add Expense</button>
+                        </div>
+
+                        <div class="bg-gray-700/50 rounded-lg p-4 text-sm text-gray-300">
+                            <h3 class="font-medium text-white mb-2">Instructions:</h3>
+                            <ul class="space-y-1 text-xs">
+                                <li>• Select type (Income or Expense)</li>
+                                <li>• Enter the day (1-365)</li>
+                                <li>• Enter the amount</li>
+                                <li>• Click Add button</li>
+                                <li>• ✨ Values on the same day are SUMMED</li>
+                                <li>• 🌐 Data syncs across all devices instantly</li>
+                            </ul>
+                        </div>
+
+                        <div id="dataList" class="mt-4 max-h-64 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- Client Panel -->
+                    <div id="clientPanel" class="hidden bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Information</h2>
+                        <p class="text-gray-300 text-sm mb-4">You are viewing the real-time financial chart. Only administrators can edit the data.</p>
+                        <div class="bg-gray-700/50 rounded-lg p-4 text-sm text-gray-300">
+                            <h3 class="font-medium text-white mb-2">Features:</h3>
+                            <ul class="space-y-1 text-xs">
+                                <li>• Real-time updates across devices</li>
+                                <li>• Global data synchronization</li>
+                                <li>• Instant chart refresh</li>
+                                <li>• Cloud-based storage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        let currentUser = null;
-        let ganhosData = {};
-        let gastosData = {};
-        let chart = null;
-        let selectedType = 'ganho';
+        // Firebase Configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEMOKEY_REPLACE_THIS",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const globalDoc = db.collection("finance").doc("globalData");
+
+        // State
+        let currentUser = null;
+        let incomeData = {};
+        let expenseData = {};
+        let chart = null;
+        let selectedType = 'income';
+
+        // User accounts
         const users = {
-            Rafael: { password: 'Fera', role: 'cliente' },
-            Pedro: { password: 'Dias', role: 'cliente' },
+            Rafael: { password: 'Fera', role: 'client' },
+            Pedro: { password: 'Dias', role: 'client' },
             Rodrigo: { password: 'Digo', role: 'admin' }
         };
 
+        // DOM elements
         const loginScreen = document.getElementById('loginScreen');
         const dashboardScreen = document.getElementById('dashboardScreen');
         const loginForm = document.getElementById('loginForm');
@@ -457,73 +219,53 @@
         const userRole = document.getElementById('userRole');
         const adminPanel = document.getElementById('adminPanel');
         const clientPanel = document.getElementById('clientPanel');
-        const sidePanelTitle = document.getElementById('sidePanelTitle');
+        const statistics = document.getElementById('statistics');
+        const btnIncome = document.getElementById('btnIncome');
+        const btnExpense = document.getElementById('btnExpense');
+        const saveIncomeBtn = document.getElementById('saveIncomeBtn');
+        const saveExpenseBtn = document.getElementById('saveExpenseBtn');
         const editError = document.getElementById('editError');
         const editSuccess = document.getElementById('editSuccess');
-        const saveGanhoBtn = document.getElementById('saveGanhoBtn');
-        const saveGastoBtn = document.getElementById('saveGastoBtn');
-        const statistics = document.getElementById('statistics');
-        const btnGanho = document.getElementById('btnGanho');
-        const btnGasto = document.getElementById('btnGasto');
         const dataList = document.getElementById('dataList');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const syncStatus = document.getElementById('syncStatus');
 
-             async function loadData() {
-            try {
-                const ganhosResult = await window.storage.get('financial-ganhos', true);
-                if (ganhosResult && ganhosResult.value) {
-                    ganhosData = JSON.parse(ganhosResult.value);
-                    console.log('Ganhos carregados:', ganhosData);
-                } else {
-                    ganhosData = {};
+        // Real-time listener for Firebase
+        globalDoc.onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                incomeData = data.income || {};
+                expenseData = data.expense || {};
+                
+                if (currentUser) {
+                    createChart();
+                    updateStatistics();
+                    if (currentUser.role === 'admin') {
+                        updateDataList();
+                    }
                 }
-            } catch (error) {
-                console.log('Nenhum ganho encontrado, iniciando vazio');
-                ganhosData = {};
-            }
 
-            try {
-                const gastosResult = await window.storage.get('financial-gastos', true);
-                if (gastosResult && gastosResult.value) {
-                    gastosData = JSON.parse(gastosResult.value);
-                    console.log('Gastos carregados:', gastosData);
-                } else {
-                    gastosData = {};
-                }
-            } catch (error) {
-                console.log('Nenhum gasto encontrado, iniciando vazio');
-                gastosData = {};
+                lastUpdate.textContent = `Updated: ${new Date(data.lastUpdated?.toDate() || Date.now()).toLocaleTimeString()}`;
             }
-        }
-        
-       async function saveDataToStorage() {
+        });
+
+        // Save to Firebase
+        async function saveToFirebase() {
             try {
-                await window.storage.set('financial-ganhos', JSON.stringify(ganhosData), true);
-                await window.storage.set('financial-gastos', JSON.stringify(gastosData), true);
-                console.log('Dados salvos com sucesso!');
+                await globalDoc.set({
+                    income: incomeData,
+                    expense: expenseData,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 return true;
             } catch (error) {
-                console.error('Erro ao salvar dados:', error);
+                console.error('Error saving to Firebase:', error);
                 return false;
             }
         }
 
-        btnGanho.addEventListener('click', () => {
-            selectedType = 'ganho';
-            btnGanho.classList.add('active-ganho');
-            btnGanho.classList.remove('active-gasto');
-            btnGasto.classList.remove('active-ganho', 'active-gasto');
-            updateDataList();
-        });
-
-        btnGasto.addEventListener('click', () => {
-            selectedType = 'gasto';
-            btnGasto.classList.add('active-gasto');
-            btnGasto.classList.remove('active-ganho');
-            btnGanho.classList.remove('active-ganho', 'active-gasto');
-            updateDataList();
-        });
-
-               loginForm.addEventListener('submit', async (e) => {
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -531,71 +273,152 @@
             const user = users[username];
             if (user && user.password === password) {
                 currentUser = { username, role: user.role };
-                await loadData();
                 showDashboard();
             } else {
-                showError(loginError, 'Login ou senha incorretos');
+                showMessage(loginError, 'Invalid username or password', 'error');
             }
         });
-        
+
+        // Logout
         logoutBtn.addEventListener('click', () => {
             currentUser = null;
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('editDay').value = '';
             document.getElementById('editValue').value = '';
-            hideError(loginError);
-            hideError(editError);
-            hideError(editSuccess);
+            hideMessage(loginError);
+            hideMessage(editError);
+            hideMessage(editSuccess);
             loginScreen.classList.remove('hidden');
             dashboardScreen.classList.add('hidden');
         });
 
+        // Show dashboard
         function showDashboard() {
             loginScreen.classList.add('hidden');
             dashboardScreen.classList.remove('hidden');
-            hideError(loginError);
+            hideMessage(loginError);
 
             currentUsername.textContent = currentUser.username;
-            userRole.textContent = currentUser.role === 'admin' ? 'Administrador' : 'Cliente';
+            userRole.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Client';
 
             if (currentUser.role === 'admin') {
-                sidePanelTitle.textContent = 'Editar Dados';
                 adminPanel.classList.remove('hidden');
                 clientPanel.classList.add('hidden');
                 updateDataList();
             } else {
-                sidePanelTitle.textContent = 'Informações';
                 adminPanel.classList.add('hidden');
                 clientPanel.classList.remove('hidden');
-                updateStatistics();
             }
 
             createChart();
+            updateStatistics();
         }
 
+        // Type selection
+        btnIncome.addEventListener('click', () => {
+            selectedType = 'income';
+            btnIncome.classList.add('active-income');
+            btnIncome.classList.remove('bg-gray-700', 'border-gray-600');
+            btnExpense.classList.remove('active-expense');
+            btnExpense.classList.add('bg-gray-700', 'border-gray-600');
+            updateDataList();
+        });
+
+        btnExpense.addEventListener('click', () => {
+            selectedType = 'expense';
+            btnExpense.classList.add('active-expense');
+            btnExpense.classList.remove('bg-gray-700', 'border-gray-600');
+            btnIncome.classList.remove('active-income');
+            btnIncome.classList.add('bg-gray-700', 'border-gray-600');
+            updateDataList();
+        });
+
+        // Save transaction
+        saveIncomeBtn.addEventListener('click', () => saveTransaction('income'));
+        saveExpenseBtn.addEventListener('click', () => saveTransaction('expense'));
+
+        async function saveTransaction(type) {
+            hideMessage(editSuccess);
+            hideMessage(editError);
+
+            const day = parseInt(document.getElementById('editDay').value);
+            const value = parseFloat(document.getElementById('editValue').value);
+
+            if (!day || !value) {
+                showMessage(editError, 'Please fill in both day and amount', 'error');
+                return;
+            }
+
+            if (day < 1 || day > 365) {
+                showMessage(editError, 'Day must be between 1 and 365', 'error');
+                return;
+            }
+
+            if (value <= 0) {
+                showMessage(editError, 'Amount must be greater than 0', 'error');
+                return;
+            }
+
+            if (type === 'income') {
+                incomeData[day] = (incomeData[day] || 0) + value;
+            } else {
+                expenseData[day] = (expenseData[day] || 0) + value;
+            }
+
+            const saved = await saveToFirebase();
+            if (saved) {
+                const typeText = type === 'income' ? '💰 Income' : '💸 Expense';
+                const totalValue = type === 'income' ? incomeData[day] : expenseData[day];
+                showMessage(editSuccess, `${typeText} added: Day ${day}, +$${value.toFixed(2)} (Total: $${totalValue.toFixed(2)})`, 'success');
+                
+                document.getElementById('editDay').value = '';
+                document.getElementById('editValue').value = '';
+
+                setTimeout(() => hideMessage(editSuccess), 3000);
+            } else {
+                showMessage(editError, 'Error saving data. Please try again.', 'error');
+            }
+        }
+
+        // Delete transaction
+        window.deleteTransaction = async function(type, day) {
+            if (type === 'income') {
+                delete incomeData[day];
+            } else {
+                delete expenseData[day];
+            }
+
+            const saved = await saveToFirebase();
+            if (saved) {
+                showMessage(editSuccess, `Day ${day} data removed successfully!`, 'success');
+                setTimeout(() => hideMessage(editSuccess), 3000);
+            }
+        };
+
+        // Update data list
         function updateDataList() {
-            const data = selectedType === 'ganho' ? ganhosData : gastosData;
-            const color = selectedType === 'ganho' ? '#60A5FA' : '#F87171';
-            const emoji = selectedType === 'ganho' ? '💰' : '💸';
-            const label = selectedType === 'ganho' ? 'Ganho' : 'Gasto';
+            const data = selectedType === 'income' ? incomeData : expenseData;
+            const color = selectedType === 'income' ? '#60A5FA' : '#F87171';
+            const emoji = selectedType === 'income' ? '💰' : '💸';
+            const label = selectedType === 'income' ? 'Income' : 'Expense';
 
             if (Object.keys(data).length === 0) {
-                dataList.innerHTML = `<p style="color: #9CA3AF; text-align: center; padding: 1rem;">Nenhum ${label.toLowerCase()} cadastrado</p>`;
+                dataList.innerHTML = `<p class="text-gray-400 text-center py-4">No ${label.toLowerCase()} recorded</p>`;
                 return;
             }
 
             const sortedDays = Object.keys(data).map(Number).sort((a, b) => a - b);
-            let html = `<h3 style="color: ${color}; margin-bottom: 0.75rem;">${emoji} ${label}s Cadastrados:</h3>`;
+            let html = `<h3 class="font-semibold mb-3" style="color: ${color};">${emoji} ${label}s:</h3>`;
 
             sortedDays.forEach(day => {
                 html += `
-                    <div class="data-item">
-                        <div class="data-item-info">
-                            <div class="data-item-type" style="color: ${color};">Dia ${day}</div>
-                            <div class="data-item-details">R$ ${data[day].toFixed(2)}</div>
+                    <div class="flex justify-between items-center bg-gray-700 rounded-lg p-3 mb-2">
+                        <div>
+                            <div class="font-medium" style="color: ${color};">Day ${day}</div>
+                            <div class="text-sm text-gray-300">$${data[day].toFixed(2)}</div>
                         </div>
-                        <button class="btn-delete" onclick="deleteData('${selectedType}', ${day})">🗑️ Excluir</button>
+                        <button onclick="deleteTransaction('${selectedType}', ${day})" class="bg-red-900/50 hover:bg-red-900 text-red-200 px-3 py-1 rounded text-sm transition">Delete</button>
                     </div>
                 `;
             });
@@ -603,25 +426,7 @@
             dataList.innerHTML = html;
         }
 
-        window.deleteData = function(type, day) {
-            if (type === 'ganho') {
-                delete ganhosData[day];
-            } else {
-                delete gastosData[day];
-            }
-
-            saveDataToStorage();
-            createChart();
-            updateDataList();
-
-            if (currentUser && currentUser.role === 'cliente') {
-                updateStatistics();
-            }
-
-            showError(editSuccess, `Dado do dia ${day} removido com sucesso!`);
-            setTimeout(() => hideError(editSuccess), 3000);
-        };
-
+        // Create chart
         function createChart() {
             const ctx = document.getElementById('lineChart').getContext('2d');
 
@@ -629,222 +434,150 @@
                 chart.destroy();
             }
 
-            const hasGanhos = Object.keys(ganhosData).length > 0;
-            const hasGastos = Object.keys(gastosData).length > 0;
+            const hasIncome = Object.keys(incomeData).length > 0;
+            const hasExpense = Object.keys(expenseData).length > 0;
 
-            if (!hasGanhos && !hasGastos) {
+            if (!hasIncome && !hasExpense) {
                 chart = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: []
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: { color: '#9CA3AF' }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: { display: true, text: 'Dias', color: '#9CA3AF' },
-                                ticks: { color: '#9CA3AF' },
-                                grid: { color: '#4B5563' }
-                            },
-                            y: {
-                                title: { display: true, text: 'Valor (R$)', color: '#9CA3AF' },
-                                ticks: { color: '#9CA3AF' },
-                                grid: { color: '#4B5563' }
-                            }
-                        }
-                    }
+                    data: { labels: [], datasets: [] },
+                    options: getChartOptions()
                 });
                 return;
             }
 
             const allDays = new Set([
-                ...Object.keys(ganhosData).map(Number),
-                ...Object.keys(gastosData).map(Number)
+                ...Object.keys(incomeData).map(Number),
+                ...Object.keys(expenseData).map(Number)
             ]);
             const maxDay = Math.max(...allDays);
             const labels = Array.from({length: maxDay}, (_, i) => i + 1);
 
             const datasets = [];
 
-            if (hasGanhos) {
+            if (hasIncome) {
                 datasets.push({
-                    label: '💰 Ganhos',
-                    data: labels.map(day => ganhosData[day] || 0),
+                    label: '💰 Income',
+                    data: labels.map(day => incomeData[day] || 0),
                     borderColor: '#3B82F6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 3,
                     pointBackgroundColor: '#3B82F6',
-                    pointBorderColor: '#3B82F6',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.1
+                    tension: 0.3
                 });
             }
 
-            if (hasGastos) {
+            if (hasExpense) {
                 datasets.push({
-                    label: '💸 Gastos',
-                    data: labels.map(day => gastosData[day] || 0),
+                    label: '💸 Expenses',
+                    data: labels.map(day => expenseData[day] || 0),
                     borderColor: '#EF4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
                     borderWidth: 3,
                     pointBackgroundColor: '#EF4444',
-                    pointBorderColor: '#EF4444',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.1
+                    tension: 0.3
                 });
             }
 
             chart = new Chart(ctx, {
                 type: 'line',
                 data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#9CA3AF',
-                                font: { size: 14, weight: 'bold' }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: '#374151',
-                            titleColor: '#F3F4F6',
-                            bodyColor: '#F3F4F6',
-                            callbacks: {
-                                label: (context) => `${context.dataset.label}: R$ ${context.parsed.y.toFixed(2)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Dias', color: '#9CA3AF' },
-                            ticks: { color: '#9CA3AF' },
-                            grid: { color: '#4B5563' }
-                        },
-                        y: {
-                            title: { display: true, text: 'Valor (R$)', color: '#9CA3AF' },
-                            ticks: { color: '#9CA3AF' },
-                            grid: { color: '#4B5563' }
-                        }
-                    }
-                }
+                options: getChartOptions()
             });
         }
 
-        saveGanhoBtn.addEventListener('click', () => saveData('ganho'));
-        saveGastoBtn.addEventListener('click', () => saveData('gasto'));
-
-        function saveData(type) {
-            hideError(editSuccess);
-
-            const day = parseInt(document.getElementById('editDay').value);
-            const value = parseFloat(document.getElementById('editValue').value);
-
-            if (!day || !value) {
-                showError(editError, 'Preencha o dia e o valor');
-                return;
-            }
-
-            if (isNaN(day) || isNaN(value)) {
-                showError(editError, 'Digite valores numéricos válidos');
-                return;
-            }
-
-            if (day < 1 || day > 365) {
-                showError(editError, 'O dia deve estar entre 1 e 365');
-                return;
-            }
-
-            if (value < 0) {
-                showError(editError, 'O valor não pode ser negativo');
-                return;
-            }
-
-            if (type === 'ganho') {
-                ganhosData[day] = (ganhosData[day] || 0) + value;
-            } else {
-                gastosData[day] = (gastosData[day] || 0) + value;
-            }
-
-            const saved = saveDataToStorage();
-            if (!saved) {
-                showError(editError, 'Erro ao salvar dados. Tente novamente.');
-                return;
-            }
-
-            createChart();
-            updateDataList();
-
-            if (currentUser && currentUser.role === 'cliente') {
-                updateStatistics();
-            }
-
-            const tipoText = type === 'ganho' ? '💰 Ganho' : '💸 Gasto';
-            const valorAtual = type === 'ganho' ? ganhosData[day] : gastosData[day];
-            showError(editSuccess, `${tipoText} adicionado: Dia ${day}, +R$ ${value.toFixed(2)} (Total: R$ ${valorAtual.toFixed(2)})`);
-            hideError(editError);
-
-            document.getElementById('editDay').value = '';
-            document.getElementById('editValue').value = '';
-
-            setTimeout(() => hideError(editSuccess), 3000);
+        function getChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#D1D5DB',
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#374151',
+                        titleColor: '#F3F4F6',
+                        bodyColor: '#F3F4F6',
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: $${context.parsed.y.toFixed(2)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Days', color: '#9CA3AF' },
+                        ticks: { color: '#9CA3AF' },
+                        grid: { color: '#374151' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Amount ($)', color: '#9CA3AF' },
+                        ticks: { color: '#9CA3AF' },
+                        grid: { color: '#374151' }
+                    }
+                }
+            };
         }
 
+        // Update statistics
         function updateStatistics() {
-            const hasGanhos = Object.keys(ganhosData).length > 0;
-            const hasGastos = Object.keys(gastosData).length > 0;
+            const hasIncome = Object.keys(incomeData).length > 0;
+            const hasExpense = Object.keys(expenseData).length > 0;
 
-            if (!hasGanhos && !hasGastos) {
-                statistics.innerHTML = '<p style="color: #9CA3AF;">Nenhum dado disponível ainda.</p>';
+            if (!hasIncome && !hasExpense) {
+                statistics.innerHTML = '<p class="text-gray-400">No data available yet.</p>';
                 return;
             }
 
             let html = '';
 
-            if (hasGanhos) {
-                const totalGanhos = Object.values(ganhosData).reduce((sum, val) => sum + val, 0);
-                const diasGanho = Object.keys(ganhosData).length;
+            if (hasIncome) {
+                const totalIncome = Object.values(incomeData).reduce((sum, val) => sum + val, 0);
+                const daysIncome = Object.keys(incomeData).length;
                 html += `
-                    <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
-                        <p style="margin-bottom: 0.5rem; color: #60A5FA; font-weight: bold;">💰 GANHOS</p>
-                        <p style="margin-bottom: 0.5rem;">Dias com ganhos: ${diasGanho}</p>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #60A5FA;">Total: R$ ${totalGanhos.toFixed(2)}</p>
+                    <div class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mb-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-blue-400 font-semibold">💰 Income</span>
+                            <span class="text-xs text-gray-400">${daysIncome} days</span>
+                        </div>
+                        <div class="text-2xl font-bold text-blue-400">$${totalIncome.toFixed(2)}</div>
                     </div>
                 `;
             }
 
-            if (hasGastos) {
-                const totalGastos = Object.values(gastosData).reduce((sum, val) => sum + val, 0);
-                const diasGasto = Object.keys(gastosData).length;
+            if (hasExpense) {
+                const totalExpense = Object.values(expenseData).reduce((sum, val) => sum + val, 0);
+                const daysExpense = Object.keys(expenseData).length;
                 html += `
-                    <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #4B5563;">
-                        <p style="margin-bottom: 0.5rem; color: #F87171; font-weight: bold;">💸 GASTOS</p>
-                        <p style="margin-bottom: 0.5rem;">Dias com gastos: ${diasGasto}</p>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: #F87171;">Total: R$ ${totalGastos.toFixed(2)}</p>
+                    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mb-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-red-400 font-semibold">💸 Expenses</span>
+                            <span class="text-xs text-gray-400">${daysExpense} days</span>
+                        </div>
+                        <div class="text-2xl font-bold text-red-400">$${totalExpense.toFixed(2)}</div>
                     </div>
                 `;
             }
 
-            if (hasGanhos && hasGastos) {
-                const totalGanhos = Object.values(ganhosData).reduce((sum, val) => sum + val, 0);
-                const totalGastos = Object.values(gastosData).reduce((sum, val) => sum + val, 0);
-                const saldoFinal = totalGanhos - totalGastos;
-                const saldoColor = saldoFinal >= 0 ? '#10B981' : '#F87171';
+            if (hasIncome && hasExpense) {
+                const totalIncome = Object.values(incomeData).reduce((sum, val) => sum + val, 0);
+                const totalExpense = Object.values(expenseData).reduce((sum, val) => sum + val, 0);
+                const balance = totalIncome - totalExpense;
+                const balanceColor = balance >= 0 ? '#10B981' : '#EF4444';
+                const bgColor = balance >= 0 ? 'bg-green-900/20 border-green-700/30' : 'bg-red-900/20 border-red-700/30';
+                
                 html += `
-                    <div>
-                        <p style="margin-bottom: 0.5rem; color: #E5E7EB; font-weight: bold;">📊 SALDO</p>
-                        <p style="margin-bottom: 0.5rem; font-weight: bold; font-size: 1.25rem; color: ${saldoColor};">
-                            R$ ${saldoFinal.toFixed(2)}                        </p>
+                    <div class="${bgColor} border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 font-semibold">📊 Balance</span>
+                        </div>
+                        <div class="text-2xl font-bold" style="color: ${balanceColor};">$${balance.toFixed(2)}</div>
                     </div>
                 `;
             }
@@ -852,12 +585,13 @@
             statistics.innerHTML = html;
         }
 
-        function showError(element, message) {
+        // Message helpers
+        function showMessage(element, message, type) {
             element.textContent = message;
             element.classList.remove('hidden');
         }
 
-        function hideError(element) {
+        function hideMessage(element) {
             element.classList.add('hidden');
         }
     </script>
