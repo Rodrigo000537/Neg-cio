@@ -180,14 +180,15 @@
     </div>
 
     <script>
-        // Firebase Configuration - REPLACE WITH YOUR CONFIG
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDEMOKEY_REPLACE_THIS",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+            apiKey: "AIzaSyBiCAjf5-UIfndcAs33IeuZu0nOQlPryxI",
+            authDomain: "negocio-43657.firebaseapp.com",
+            projectId: "negocio-43657",
+            storageBucket: "negocio-43657.appspot.com",
+            messagingSenderId: "751435187048",
+            appId: "1:751435187048:web:59e69bad56c1deacf98cdd",
+            measurementId: "G-ECL4EFRXMC"
         };
 
         // Initialize Firebase
@@ -228,7 +229,6 @@
         const editSuccess = document.getElementById('editSuccess');
         const dataList = document.getElementById('dataList');
         const lastUpdate = document.getElementById('lastUpdate');
-        const syncStatus = document.getElementById('syncStatus');
 
         // Real-time listener for Firebase
         globalDoc.onSnapshot((doc) => {
@@ -519,7 +519,8 @@
                     y: {
                         title: { display: true, text: 'Amount ($)', color: '#9CA3AF' },
                         ticks: { color: '#9CA3AF' },
-                        grid: { color: '#374151' }
+                        grid: { color: '#374151' },
+                        beginAtZero: true
                     }
                 }
             };
@@ -541,7 +542,7 @@
                 const totalIncome = Object.values(incomeData).reduce((sum, val) => sum + val, 0);
                 const daysIncome = Object.keys(incomeData).length;
                 html += `
-                    <div class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mb-3">
+                    <div class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-blue-400 font-semibold">💰 Income</span>
                             <span class="text-xs text-gray-400">${daysIncome} days</span>
@@ -555,7 +556,7 @@
                 const totalExpense = Object.values(expenseData).reduce((sum, val) => sum + val, 0);
                 const daysExpense = Object.keys(expenseData).length;
                 html += `
-                    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mb-3">
+                    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-red-400 font-semibold">💸 Expenses</span>
                             <span class="text-xs text-gray-400">${daysExpense} days</span>
@@ -586,7 +587,7 @@
         }
 
         // Message helpers
-        function showMessage(element, message, type) {
+        function showMessage(element, message) {
             element.textContent = message;
             element.classList.remove('hidden');
         }
