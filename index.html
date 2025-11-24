@@ -275,7 +275,7 @@
                 currentUser = { username, role: user.role };
                 showDashboard();
             } else {
-                showMessage(loginError, 'Invalid username or password', 'error');
+                showMessage(loginError, 'Invalid username or password');
             }
         });
 
@@ -346,17 +346,17 @@
             const value = parseFloat(document.getElementById('editValue').value);
 
             if (!day || !value) {
-                showMessage(editError, 'Please fill in both day and amount', 'error');
+                showMessage(editError, 'Please fill in both day and amount');
                 return;
             }
 
             if (day < 1 || day > 365) {
-                showMessage(editError, 'Day must be between 1 and 365', 'error');
+                showMessage(editError, 'Day must be between 1 and 365');
                 return;
             }
 
             if (value <= 0) {
-                showMessage(editError, 'Amount must be greater than 0', 'error');
+                showMessage(editError, 'Amount must be greater than 0');
                 return;
             }
 
@@ -370,14 +370,14 @@
             if (saved) {
                 const typeText = type === 'income' ? '💰 Income' : '💸 Expense';
                 const totalValue = type === 'income' ? incomeData[day] : expenseData[day];
-                showMessage(editSuccess, `${typeText} added: Day ${day}, +$${value.toFixed(2)} (Total: $${totalValue.toFixed(2)})`, 'success');
+                showMessage(editSuccess, `${typeText} added: Day ${day}, +$${value.toFixed(2)} (Total: $${totalValue.toFixed(2)})`);
                 
                 document.getElementById('editDay').value = '';
                 document.getElementById('editValue').value = '';
 
                 setTimeout(() => hideMessage(editSuccess), 3000);
             } else {
-                showMessage(editError, 'Error saving data. Please try again.', 'error');
+                showMessage(editError, 'Error saving data. Please try again.');
             }
         }
 
@@ -391,7 +391,7 @@
 
             const saved = await saveToFirebase();
             if (saved) {
-                showMessage(editSuccess, `Day ${day} data removed successfully!`, 'success');
+                showMessage(editSuccess, `Day ${day} data removed successfully!`);
                 setTimeout(() => hideMessage(editSuccess), 3000);
             }
         };
@@ -465,7 +465,8 @@
                     pointBackgroundColor: '#3B82F6',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.3
+                    tension: 0.3,
+                    fill: true
                 });
             }
 
@@ -479,7 +480,8 @@
                     pointBackgroundColor: '#EF4444',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.3
+                    tension: 0.3,
+                    fill: true
                 });
             }
 
