@@ -383,7 +383,7 @@
             </div>
 
             <div class="card">
-                <h2 class="card-title" id="sidePanelTitle">Editar Dados</h2>
+                <h2 class="card-title" id="siudePanelTitle">Editar Dados</h2>
                 
                 <div id="adminPanel" class="hidden">
                     <div class="data-type-selector">
@@ -467,28 +467,38 @@
         const btnGasto = document.getElementById('btnGasto');
         const dataList = document.getElementById('dataList');
 
-        function loadData() {
-            const ganhosJSON = localStorage.getItem('financial-ganhos');
-            if (ganhosJSON) {
-                ganhosData = JSON.parse(ganhosJSON);
-                console.log('Ganhos carregados:', ganhosData);
-            } else {
+             async function loadData() {
+            try {
+                const ganhosResult = await window.storage.get('financial-ganhos', true);
+                if (ganhosResult && ganhosResult.value) {
+                    ganhosData = JSON.parse(ganhosResult.value);
+                    console.log('Ganhos carregados:', ganhosData);
+                } else {
+                    ganhosData = {};
+                }
+            } catch (error) {
+                console.log('Nenhum ganho encontrado, iniciando vazio');
                 ganhosData = {};
             }
 
-            const gastosJSON = localStorage.getItem('financial-gastos');
-            if (gastosJSON) {
-                gastosData = JSON.parse(gastosJSON);
-                console.log('Gastos carregados:', gastosData);
-            } else {
+            try {
+                const gastosResult = await window.storage.get('financial-gastos', true);
+                if (gastosResult && gastosResult.value) {
+                    gastosData = JSON.parse(gastosResult.value);
+                    console.log('Gastos carregados:', gastosData);
+                } else {
+                    gastosData = {};
+                }
+            } catch (error) {
+                console.log('Nenhum gasto encontrado, iniciando vazio');
                 gastosData = {};
             }
         }
-
-        function saveDataToStorage() {
+        
+       async function saveDataToStorage() {
             try {
-                localStorage.setItem('financial-ganhos', JSON.stringify(ganhosData));
-                localStorage.setItem('financial-gastos', JSON.stringify(gastosData));
+                await window.storage.set('financial-ganhos', JSON.stringify(ganhosData), true);
+                await window.storage.set('financial-gastos', JSON.stringify(gastosData), true);
                 console.log('Dados salvos com sucesso!');
                 return true;
             } catch (error) {
@@ -513,7 +523,7 @@
             updateDataList();
         });
 
-        loginForm.addEventListener('submit', (e) => {
+               loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -521,13 +531,13 @@
             const user = users[username];
             if (user && user.password === password) {
                 currentUser = { username, role: user.role };
-                loadData();
+                await loadData();
                 showDashboard();
             } else {
                 showError(loginError, 'Login ou senha incorretos');
             }
         });
-
+        
         logoutBtn.addEventListener('click', () => {
             currentUser = null;
             document.getElementById('username').value = '';
