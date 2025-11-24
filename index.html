@@ -180,12 +180,12 @@
     </div>
 
     <script>
-        // Firebase Configuration - CORRECTED
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBiCAjf5-UIfndcAs33IeuZu0nOQlPryxI",
             authDomain: "negocio-43657.firebaseapp.com",
             projectId: "negocio-43657",
-            storageBucket: "negocio-43657.firebasestorage.app",
+            storageBucket: "negocio-43657.appspot.com",
             messagingSenderId: "751435187048",
             appId: "1:751435187048:web:59e69bad56c1deacf98cdd",
             measurementId: "G-ECL4EFRXMC"
@@ -229,20 +229,21 @@
         const editSuccess = document.getElementById('editSuccess');
         const dataList = document.getElementById('dataList');
         const lastUpdate = document.getElementById('lastUpdate');
+        const syncStatus = document.getElementById('syncStatus');
 
         // Real-time listener for Firebase
         globalDoc.onSnapshot((doc) => {
+            if (!currentUser) return; // Evita atualizações antes do login
+            
             if (doc.exists) {
                 const data = doc.data();
                 incomeData = data.income || {};
                 expenseData = data.expense || {};
                 
-                if (currentUser) {
-                    createChart();
-                    updateStatistics();
-                    if (currentUser.role === 'admin') {
-                        updateDataList();
-                    }
+                createChart();
+                updateStatistics();
+                if (currentUser.role === 'admin') {
+                    updateDataList();
                 }
 
                 lastUpdate.textContent = `Updated: ${new Date(data.lastUpdated?.toDate() || Date.now()).toLocaleTimeString()}`;
@@ -275,7 +276,7 @@
                 currentUser = { username, role: user.role };
                 showDashboard();
             } else {
-                showMessage(loginError, 'Invalid username or password');
+                showMessage(loginError, 'Invalid username or password', 'error');
             }
         });
 
@@ -346,17 +347,17 @@
             const value = parseFloat(document.getElementById('editValue').value);
 
             if (!day || !value) {
-                showMessage(editError, 'Please fill in both day and amount');
+                showMessage(editError, 'Please fill in both day and amount', 'error');
                 return;
             }
 
             if (day < 1 || day > 365) {
-                showMessage(editError, 'Day must be between 1 and 365');
+                showMessage(editError, 'Day must be between 1 and 365', 'error');
                 return;
             }
 
             if (value <= 0) {
-                showMessage(editError, 'Amount must be greater than 0');
+                showMessage(editError, 'Amount must be greater than 0', 'error');
                 return;
             }
 
@@ -370,14 +371,14 @@
             if (saved) {
                 const typeText = type === 'income' ? '💰 Income' : '💸 Expense';
                 const totalValue = type === 'income' ? incomeData[day] : expenseData[day];
-                showMessage(editSuccess, `${typeText} added: Day ${day}, +$${value.toFixed(2)} (Total: $${totalValue.toFixed(2)})`);
+                showMessage(editSuccess, `${typeText} added: Day ${day}, +$${value.toFixed(2)} (Total: $${totalValue.toFixed(2)})`, 'success');
                 
                 document.getElementById('editDay').value = '';
                 document.getElementById('editValue').value = '';
 
                 setTimeout(() => hideMessage(editSuccess), 3000);
             } else {
-                showMessage(editError, 'Error saving data. Please try again.');
+                showMessage(editError, 'Error saving data. Please try again.', 'error');
             }
         }
 
@@ -391,7 +392,7 @@
 
             const saved = await saveToFirebase();
             if (saved) {
-                showMessage(editSuccess, `Day ${day} data removed successfully!`);
+                showMessage(editSuccess, `Day ${day} data removed successfully!`, 'success');
                 setTimeout(() => hideMessage(editSuccess), 3000);
             }
         };
@@ -430,7 +431,8 @@
         function createChart() {
             const ctx = document.getElementById('lineChart').getContext('2d');
 
-            if (chart) {
+            // IMPORTANTE: Destruir gráfico anterior antes de criar novo
+            if (chart !== null) {
                 chart.destroy();
             }
 
@@ -465,8 +467,7 @@
                     pointBackgroundColor: '#3B82F6',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.3,
-                    fill: true
+                    tension: 0.3
                 });
             }
 
@@ -480,8 +481,7 @@
                     pointBackgroundColor: '#EF4444',
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    tension: 0.3,
-                    fill: true
+                    tension: 0.3
                 });
             }
 
@@ -544,7 +544,7 @@
                 const totalIncome = Object.values(incomeData).reduce((sum, val) => sum + val, 0);
                 const daysIncome = Object.keys(incomeData).length;
                 html += `
-                    <div class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
+                    <div class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mb-3">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-blue-400 font-semibold">💰 Income</span>
                             <span class="text-xs text-gray-400">${daysIncome} days</span>
@@ -558,7 +558,7 @@
                 const totalExpense = Object.values(expenseData).reduce((sum, val) => sum + val, 0);
                 const daysExpense = Object.keys(expenseData).length;
                 html += `
-                    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
+                    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mb-3">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-red-400 font-semibold">💸 Expenses</span>
                             <span class="text-xs text-gray-400">${daysExpense} days</span>
@@ -589,7 +589,7 @@
         }
 
         // Message helpers
-        function showMessage(element, message) {
+        function showMessage(element, message, type) {
             element.textContent = message;
             element.classList.remove('hidden');
         }
